@@ -1,0 +1,4 @@
+root/sys
+JMP 1;
+JMP 0;
+HLT;

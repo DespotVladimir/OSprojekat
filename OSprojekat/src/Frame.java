@@ -18,4 +18,17 @@ public class Frame {
     public void setPage(Page page) {
         this.page = page;
     }
+
+    public boolean isEmpty() {
+        return page==null;
+    }
+
+    @Override
+    public String toString() {
+        if (getPage() == null) {
+            return "Frame " + getFrameId() + ": EMPTY";
+        } else {
+            return "Frame " + getFrameId() + ": " + getPage();
+        }
+    }
 }

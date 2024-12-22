@@ -1,0 +1,5 @@
+root/src/run
+LDA 200;
+ADD 20;
+ADD 40;
+HLT;

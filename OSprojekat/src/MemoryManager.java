@@ -1,25 +1,46 @@
 public class MemoryManager {
-    private RAM ram;
+    private final RAM ram;
 
     public MemoryManager() {
         ram = new RAM(64);
     }
 
     public void allocateMemory(Process p){
-        String[] allAddresses = p.getAllHDDAddresses();
-        for(String address : allAddresses){
-            Frame freeFrame = ram.getEmptyFrame();
-            p.setFrameID(freeFrame.getFrameId(),address);
-        }
+        Page[] processPages = p.getPages();
+
+        if(processPages.length == 0)
+            return;
+
+        // TODO uraditi da lru frame koji izbaci upise u hdd;
+        ram.loadPageIntoFrame(processPages[0]);
+
     }
 
     public void freeMemory(Process p){
-        String[] allAddresses = p.getAllHDDAddresses();
-        for(String address : allAddresses){
-            int frameID = p.getFrameID(address);
-            ram.freeFrame(frameID);
+        Page[] processPages = p.getPages();
+
+        for(Page page : processPages){
+            if(page.isInMemory())
+            {
+                Frame f = ram.getFrameForPage(p.getID(),page.getPageNumber());
+                ram.freeFrame(f.getFrameId());
+                page.setInMemory(false);
+            }
         }
     }
-    public void foundFreeSpace(int size){}
-    public void getProcessMemoryAddress(Process p){}
+
+    public boolean foundFreeSpace(int size)     // Broj stranica
+    {
+        return ram.remainingSpace() >= size;
+    }
+
+
+    public double getUsedMemory()
+    {
+        return ((double)(ram.getFrameCount()-ram.remainingSpace()) / ram.getFrameCount());
+    }
+
+    public RAM getRam(){
+        return ram;
+    }
 }

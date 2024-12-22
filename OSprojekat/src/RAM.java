@@ -20,17 +20,27 @@ public class RAM {
 
     public boolean isPageInRAM(int pageNumber) {
         for (Frame frame : frames) {
+
             if (frame.getPage() != null && frame.getPage().getPageNumber() == pageNumber)
                 return true;
         }
         return false;
     }
 
-    public Frame getFrameForPage(int pageNumber) {
+    public Frame getFrameForPage(int processID,int pageNumber) {
+
         for (Frame frame : frames) {
-            if (frame.getPage() != null && frame.getPage().getPageNumber() == pageNumber) {
-                return frame;
+
+            if (frame.getPage() != null)
+            {
+                if(frame.getPage().getPageNumber() == pageNumber && frame.getPage().getProcessId() == processID)
+                {
+
+                    return frame;
+                }
+
             }
+
         }
         return null;
     }
@@ -49,9 +59,9 @@ public class RAM {
         Nalazi frame koji nije trenutno koristen
          */
 
-        for (Frame frame : frames) {
-            if (frame.getPage() == null)
-                return frame;
+        for (int i = 0; i < frames.size(); i++) {
+            if (frames.get(i).getPage() == null)
+                return frames.get(i);
         }
         return null;
     }
@@ -86,6 +96,15 @@ public class RAM {
 
     }
 
+    public int remainingSpace(){
+        int freeSpace = 0;
+        for (Frame frame : frames) {
+            if (frame.isEmpty())
+                freeSpace++;
+        }
+        return freeSpace;
+    }
+
     public void printFrames() {
         System.out.println("RAM frames:");
         for (Frame frame : frames) {
@@ -96,4 +115,6 @@ public class RAM {
             }
         }
     }
+
+
 }

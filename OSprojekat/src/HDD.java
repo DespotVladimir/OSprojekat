@@ -1,47 +1,59 @@
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 public class HDD {
-    private final int size;                 // Broj stranica
-    private HashMap<String,String> memory;
+
+    /*
+    HDD je sastavljen od memorije koja je predstavljena arraylistom ciji clanovi su predstavljeni kao blokovi koji su
+    jednaki velicini stranica.
+    Pristupanje stranicama je pomocu adresa u formatu 0x0 ili 0, adrese su jednake indeks*velicina_stranice
+
+    String str = "0x" + String.format("%010d", i * Page.pageSize);
+     */
+
+    private final int size;     // Broj blokova
+    private ArrayList<String> memory;
+
+    private int head;
 
     public HDD(int size) {
         this.size = size;
-        memory = new HashMap<>();
+        memory = new ArrayList<>();
 
-        for (int i = 1; i <= size; i += 1) {
-            String str = "0x" + String.format("%010d", i);
-            memory.put(str, null);                          // Inicializuje sve stranice i stavlja ih na 0
-        }
+        for (int i = 0; i <= size; i += 1)
+            memory.add(null);
+
     }
 
     public int remainingSpace(){
+
         int freePages = 0;
-        for (String key : memory.keySet()){
-            if(memory.get(key)!=null){
+
+        for (String page : memory)
+            if(page == null)
                 freePages++;
-            }
-        }
-        return size - freePages;
+
+        return freePages;
     }
 
     public boolean hasFreeSpace() {
         return remainingSpace() > 0;
     }
 
-    public void writeToMemory(String address, String data) throws RuntimeException {
-        if (memory.containsKey(address)) {
-            memory.put(address, data);
-        }
-        else
-            throw new RuntimeException("Couldn't write to memory! {" + address + "}");
-
+    public void writeToMemory(String address, String data){
+        memory.set(translateAddress(address), data);
     }
 
     public String findFirstEmpty(){
-        for (String key : memory.keySet()) {
-            if(memory.get(key)==null)
-                return key;
-        }
+        return findFirstEmpty("0x0");
+    }
+
+    public String findFirstEmpty(String startAddress){
+        int start = translateAddress(startAddress);
+        for (int i = start; i < memory.size(); i++)
+            if(memory.get(i) == null)
+                return encodeAddress(i);
         return null;
     }
 
@@ -49,25 +61,72 @@ public class HDD {
         return size;
     }
 
+    public String[] SCAN(String ... addresses){
+        HashMap<Integer,Integer> addressMap = new HashMap<>();
+        String[] returns = new String[addresses.length];
+
+        ArrayList<Integer> left = new ArrayList<>();
+        ArrayList<Integer> right = new ArrayList<>();
+
+        for(int i = 0; i < addresses.length; i++){
+            int translatedAddresses = translateAddress(addresses[i]);
+            addressMap.put(translatedAddresses,i);
+            if(translatedAddresses < head)
+                left.add(translatedAddresses);
+            else
+                right.add(translatedAddresses);
+        }
+
+        Collections.sort(left);
+        Collections.sort(right);
+
+        for (int rightAddress : right) {
+            returns[addressMap.get(rightAddress)] = memory.get(rightAddress);
+            head = rightAddress;
+        }
+
+        head = 0;
+
+        for (int leftAddress : left) {
+            returns[addressMap.get(leftAddress)] = memory.get(leftAddress);
+            head = leftAddress;
+        }
+
+        return returns;
+    }
+
     public String getData(String address) {
-        return memory.get(address);
+        return SCAN(address)[0];
+    }
+
+    private int translateAddress(String address) {
+        if(address.contains("0x"))
+            return Integer.parseInt(address.substring(address.indexOf("0x")+2)) / Page.pageSize;
+        return Integer.parseInt(address)/Page.pageSize;
+    }
+
+    private String encodeAddress(int address) {
+        return "0x"+String.format("%010d", address*Page.pageSize);
+    }
+
+    public boolean isValidAddress(String address) {
+        return translateAddress(address)<memory.size();
     }
 
     public void printAllMemory() {
-
         System.out.println("Address  \t\tData");
         System.out.println("--------------------");
-        for(String address : memory.keySet()) {
-            System.out.println(address + ":\t" + memory.get(address));
+        for(int i=0;i<memory.size();i+=1) {
+            System.out.println(encodeAddress(i) + ":\t" + memory.get(i));
         }
     }
 
     public void printUsedMemory() {
         System.out.println("Address  \t\tData");
         System.out.println("--------------------");
-        for(String address : memory.keySet()) {
-            if(memory.get(address)!=null)
-                System.out.println(address + ":\t" + memory.get(address));
+        for(int i=0; i<memory.size(); i+=1) {
+            if(memory.get(i)!=null)
+                System.out.println(encodeAddress(i) + ":\n" + memory.get(i));
         }
     }
 

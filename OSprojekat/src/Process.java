@@ -1,37 +1,156 @@
-import java.util.HashMap;
-
+import java.util.ArrayList;
 
 public class Process {
     private int id;
     private ProcessState state;
     private String code;
+    private String name;
 
-    private HashMap<String,Integer> page_table = new HashMap<>();   // FrameID u ramu , Address na hdd
+    private ArrayList<Page> pages;
+    private String cpuAccumulator;
+    private int pageNumber;
+    private int pageBlock;
 
-    public void start(){}
-    public void terminate(){}
-    public void block(){}
-    public void unblock(){}
+    private int totalTime; // broj instrukcija
 
-    public String getHDDAddress(int frameID){
-        for(String address : page_table.keySet())
-            if(frameID==page_table.get(address))
-                return address;
-        return null;
+    public Process(int id, String code) {
+        this(id,code,"");
     }
 
-    public Integer getFrameID(String address){
-        return page_table.get(address);
+    public Process(int id, String code,String name) {
+        this.id = id;
+        this.state = ProcessState.NEW;
+        this.code = code;
+        this.name = name;
+
+        pageNumber = 0;
+        pageBlock = 0;
+
+        cpuAccumulator = "000000000000";
+
+        pages = new ArrayList<>();
+        generatePages();
+
+        totalTime = code.split("\n").length;
     }
 
-    public String[] getAllHDDAddresses(){
-        return page_table.keySet().toArray(new String[page_table.keySet().size()]);
+    private void generatePages()
+    {
+        Byte[] compiledCode = Assembly.compile(code);
+        for (int i = 0; i < Math.ceil((double) compiledCode.length / Page.pageSize); i++) {
+            Byte[] temp = new Byte[Page.pageSize];
+            for (int j = 0; j < Page.pageSize; j++) {
+                if(compiledCode.length  > i*Page.pageSize+j)
+                    temp[j] = compiledCode[i*Page.pageSize+j];
+                else
+                    temp[j] = 0;
+            }
+            Page page = new Page(i,id,temp);
+            pages.add(page);
+        }
     }
 
-    public void setFrameID(int frameID, String address){
-        page_table.put(address,frameID);
+    public void start(){
+        state = ProcessState.RUNNING;
+    }
+    public void terminate(){
+        state = ProcessState.TERMINATED;
+    }
+    public void block(){
+        state = ProcessState.BLOCKED;
+    }
+    public void unblock(){
+        state = ProcessState.READY;
+    }
+
+    public void waiting(){
+        state = ProcessState.READY;
+    }
+
+    public void incrementBlock()
+    {
+        if(pageBlock+1==Page.pageSize/Assembly.CodeBlockSize)
+        {
+            pageNumber++;
+            pageBlock = 0;
+        }
+        else
+            pageBlock++;
+
+    }
+
+    public void setPageNumber(int pageNumber) {
+        this.pageNumber = pageNumber;
+    }
+
+    public int getRemainingTime(){
+        return totalTime;
+    }
+
+    public ProcessState getState(){
+        return state;
+    }
+
+    public void setState(ProcessState state){
+        this.state = state;
+    }
+
+    public int getID(){
+        return id;
+    }
+
+    public void setPageBlock(int number) {
+        pageBlock = number;
+    }
+
+    public int getPageBlock(){
+        return pageBlock;
+    }
+
+    public int getPageNumber()
+    {
+        return pageNumber;
+    }
+
+    public void setBlock(int address) {
+        this.pageBlock = address%((Page.pageSize)/Assembly.CodeBlockSize);
+        this.pageNumber = address/((Page.pageSize)/Assembly.CodeBlockSize);
+    }
+
+    public Page[] getPages()
+    {
+        return pages.toArray(new Page[0]);
+    }
+
+
+    public String getCpuAccumulator() {
+        return cpuAccumulator;
+    }
+
+    public void setCpuAccumulator(String cpuAccumulator) {
+        this.cpuAccumulator = cpuAccumulator;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override
-    public String toString() {return super.toString();}
+    public String toString() {
+        return "Process{" +
+                "id: " + id +
+                ", name: " + name +
+                ", state: " + state +
+                ", pageNumber: " + pageNumber +
+                ", pageBlock: " + pageBlock +
+                '}';
+    }
 }
