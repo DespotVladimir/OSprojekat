@@ -14,6 +14,7 @@ public class Terminal {
             kernel.boot();
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(-400);
         }
 
         kernelThread.start();
@@ -30,7 +31,9 @@ public class Terminal {
         // mem               Zauzece memorije
         // exit              Gasi OS
         // rm                Uklanja datoteku
-        // rd [file_name]   Ispisi fajl
+        // rd [file_name]    Ispisi fajl
+        // mkfile [name]     Napravi fajl
+        // opn [fileName]    Otvori fajl
 
 
         String user_command = "";
@@ -68,6 +71,34 @@ public class Terminal {
                 else if(user_command.equalsIgnoreCase("rd")){
                     kernel.rd(argument);
                 }
+                else if (user_command.equalsIgnoreCase("block")) {
+                    kernel.block(argument);
+                }
+                else if(user_command.equalsIgnoreCase("unblock")) {
+                    kernel.unblock(argument);
+                }
+                else if (user_command.equalsIgnoreCase("opn")){
+                    File file = kernel.getFile(argument);
+
+                    if(file==null)
+                    {
+                        System.out.println("File not found");
+                        continue;
+                    }
+                    System.out.println("Write to "+file.getName()+" (type 'exit' to exit file)");
+
+                    String opnCommand="";
+                    StringBuilder sb = new StringBuilder();
+                    do {
+                        sb.append(opnCommand);
+                        opnCommand = (scanner.nextLine()).replaceAll("\n","");
+                    }while (!opnCommand.equalsIgnoreCase("exit"));
+
+                    kernel.opn(file.getName(), sb.toString());
+                }
+                else if(user_command.equalsIgnoreCase("mkfile")){
+                    kernel.mkfile(argument);
+                }
                 else{
                     System.out.println("Unknown command.");
                 }
@@ -88,6 +119,9 @@ public class Terminal {
                 else if(user_command.equalsIgnoreCase("mem")){
                     kernel.mem();
                 }
+                else if(user_command.equalsIgnoreCase("hdd")){
+                    kernel.hddPrint();
+                }
                 else if(user_command.equalsIgnoreCase("exit")){
                     System.out.println("Booting down! ");
                     break;
@@ -103,15 +137,26 @@ public class Terminal {
                     // exit              Gasi OS
                     // rm                Uklanja datoteku
                     // rd [file_name]    Ispisi fajl
+                    // mkfile [name]     Napravi fajl
+                    // opn [fileName]    Otvori fajl
+                    // block [ProcessID]    Blokiraj proces
+                    // unblock [ProcessID]    Unblokiraj proces
+
                     System.out.println("cd [dir_name]     Prelazi u ciljeni direktorijum");
                     System.out.println("dir               lista trenutnih direktorijuma");
                     System.out.println("dirs              lista svih direktorijuma");
                     System.out.println("ps                lista procesa i osnovne informacije o njima");
                     System.out.println("mkdir [dir_name]  napravi direktorijum");
+                    System.out.println("mkfile [name]     napravi fajl");
                     System.out.println("run [filename]    pokrece proces");
-                    System.out.println("mem               Zauzece memorije");
+                    System.out.println("mem               Zauzece memorije ram");
+                    System.out.println("hdd               Zauzece memorije hdd");
                     System.out.println("rm [filename]     Uklanja datoteku");
                     System.out.println("rd [filename]     Ispisi datoteku");
+                    System.out.println("opn [filename]    Otvori fajl");
+                    System.out.println("block [PID]       Blokiraj proces");
+                    System.out.println("unblock [PID]     Unblokiraj proces");
+
                     System.out.println("exit              Gasi OS");
 
                 }

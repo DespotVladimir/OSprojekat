@@ -5,14 +5,15 @@ public class MemoryManager {
         ram = new RAM(64);
     }
 
-    public void allocateMemory(Process p){
+    public Page allocateMemory(Process p){
         Page[] processPages = p.getPages();
 
         if(processPages.length == 0)
-            return;
+            return null;
 
-        // TODO uraditi da lru frame koji izbaci upise u hdd;
-        ram.loadPageIntoFrame(processPages[0]);
+
+
+        return ram.loadPageIntoFrame(processPages[0]);
 
     }
 

@@ -82,17 +82,22 @@ public class RAM {
         return lruFrame; // Vraćamo frame sa najmanje korišćenom stranicom ili null ako svi frejmovi nisu zauzeti
     }
 
-    public void loadPageIntoFrame(Page page) {
+    public Page loadPageIntoFrame(Page page) {
         Frame frame = getEmptyFrame();
+        Page returnPage = null;
 
         if (frame == null) {
 
             frame = getLRUFrame();
             frame.getPage().setInMemory(false);
+            returnPage = frame.getPage();
+
         }
 
         frame.setPage(page);
         page.setInMemory(true);
+
+        return returnPage;
 
     }
 

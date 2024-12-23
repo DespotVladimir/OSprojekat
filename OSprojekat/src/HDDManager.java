@@ -5,7 +5,7 @@ public class HDDManager {
     private String fileFirstEmpty;
     private String firstVirtualMemory;
 
-    private final int HDDSize =512;
+    private final int HDDSize = 512;
     private final String VirtualMemoryStart = "0x"+(380*Page.pageSize);
 
     public HDDManager() {

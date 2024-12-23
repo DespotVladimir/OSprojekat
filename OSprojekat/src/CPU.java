@@ -17,15 +17,18 @@ public class CPU {
 
 
     private boolean busy;
-    private int clockCycle;
+    public static final int clockCycle = 10;   // po 0.1s
+    public int clock;
 
-    private int clock;
+    private final int quantumTime;
+
+    private int instruction;
 
     private Map<String,Register> registerMap;
 
     public CPU(){
         busy = false;
-        clockCycle = 10;
+        quantumTime = 10;
 
         IP = new Register("IP","0","0");
         SP = new Register("SP","1","230");
@@ -71,14 +74,14 @@ public class CPU {
         int num = Assembly.binaryToDecimal(number);
         int ac_num=Assembly.binaryToDecimal(AC.getValue());
         AC.setValue(Assembly.decimalTo12BitBinary(String.valueOf(num+ac_num)));
-        clock++;
+        increment();
     }
 
     public void SUB(String number){
         int num = Assembly.binaryToDecimal(number);
         int ac_num=Assembly.binaryToDecimal(AC.getValue());
         AC.setValue(Assembly.decimalTo12BitBinary(String.valueOf(num-ac_num)));
-        clock++;
+        increment();
     }
 
     public void LDA(Page page,String number){
@@ -86,18 +89,18 @@ public class CPU {
         Byte[] memoryBlock = page.getMemoryBlock(blockNum);
         int value = Assembly.getNumberFromBlock(Assembly.blockToString(memoryBlock));
         AC.setValue(Assembly.decimalTo12BitBinary(Integer.toString(value)));
-        clock++;
+        increment();
     }
 
     public void STA(Page page,String index){
         int blockNum = (Assembly.binaryToDecimal(index) * Assembly.CodeBlockSize) % Page.pageSize;
         page.setBlockAt(blockNum,String.format("%012d",Integer.parseInt(AC.getValue())));
-        clock++;
+        increment();
     }
 
     public void JMP(Process p,int number) {
         p.setBlock(number);
-        clock++;
+        increment();
     }
 
     public void JZ(Process p, int number) {
@@ -106,8 +109,19 @@ public class CPU {
         JMP(p,number);
     }
 
+    public void JZN(Process p, int number) {
+        if(Assembly.binaryToDecimal(AC.getValue())<=0)
+            return;
+        JMP(p,number);
+    }
+
     public void HLT(){
         resetAC();
+        increment();
+    }
+
+    public void increment(){
+        instruction++;
         clock++;
     }
 
@@ -136,8 +150,22 @@ public class CPU {
         return busy;
     }
 
+    public void resetInstruction() {
+        instruction = 0;
+    }
+
+    public void resetClock()
+    {
+        clock = 0;
+    }
+
+    public int getClock()
+    {
+        return clock;
+    }
+
     public boolean isNextCycle()
     {
-        return clock>=clockCycle;
+        return instruction >=quantumTime;
     }
 }

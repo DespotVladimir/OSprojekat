@@ -53,7 +53,7 @@ public class Assembly {
         }
         binary.reverse();
 
-        return String.format("%012d", Integer.parseInt(binary.toString()));
+        return String.format("%012.0f", Double.parseDouble(binary.toString()));
     }
 
     public static int binaryToDecimal(String binary){
@@ -89,8 +89,12 @@ public class Assembly {
             Map.entry("JZ","0110"),
             Map.entry("0110","JZ"),
 
+            Map.entry("JNZ","0111"),
+            Map.entry("0111","JNZ"),
+
             Map.entry("HLT","1111"),
-            Map.entry("1111","HLT")
+            Map.entry("1111","HLT"),
+            Map.entry("0000","HLT")
     );
 
     public static boolean isJumper(String command)
@@ -125,6 +129,7 @@ public class Assembly {
     * STA	Sačuvaj podatak u memoriju	0100
     * JMP	Skok na adresu	0101
     * JZ	Skok ako je rezultat 0	0110
+    * JNZ   Skok ako nije rezultat 0 0111
     * HLT	Zaustavi program	1111
     * 0000  Broj
     ***/

@@ -126,7 +126,7 @@ public class HDD {
         System.out.println("--------------------");
         for(int i=0; i<memory.size(); i+=1) {
             if(memory.get(i)!=null)
-                System.out.println(encodeAddress(i) + ":\n" + memory.get(i));
+                System.out.println(encodeAddress(i) + ":\t" + memory.get(i).replaceAll("\n",""));
         }
     }
 

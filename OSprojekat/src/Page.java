@@ -67,7 +67,12 @@ public class Page {
     }
 
     public void setBlockAt(int index,String number){
-        for(int i = index,k=0;i<index+Assembly.CodeBlockSize;i++,k++)
+        int i=index;
+        if(number.startsWith("0000"))
+        {
+            i+=4;
+        }
+        for(int k=0;i<index+Assembly.CodeBlockSize;i++,k++)
         {
             data[i]=Byte.parseByte(String.valueOf(number.charAt(k)));
         }

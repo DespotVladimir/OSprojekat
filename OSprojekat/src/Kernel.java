@@ -33,7 +33,21 @@ public class Kernel extends Thread {
 
         Process currentProcess = pm.scheduleNextProcess();;
 
+
+        long startTime = System.currentTimeMillis();
         while(true){
+            long now = System.currentTimeMillis();
+            if(cpu.getClock()>=CPU.clockCycle)
+            {
+                if(now-startTime < CPU.clockCycle) {
+                    continue;
+                }
+                else {
+                    cpu.resetClock();
+                    startTime = System.currentTimeMillis();
+                }
+            }
+
             if(cpu.isNextCycle())
             {
                 currentProcess.setCpuAccumulator(cpu.getAC());
@@ -76,11 +90,7 @@ public class Kernel extends Thread {
                 contentSB.append("\n");
             }
             String content=contentSB.toString();
-            String address=hm.findFirstEmpty();
-            File file = new File(fileName,content,address);
-            fsm.addFile(filePath, file);
-            hm.writeToDisk(content);
-
+            createFile(fileName,filePath, content);
         }
 
         System.out.println("Adding system processes");
@@ -94,27 +104,19 @@ public class Kernel extends Thread {
             Process p = createProcess(fileContents);
             p.setName(name);
         }
+        for(int i=0;i<120;i++)
+        {
+            String ProcessPath="root/sys";
+            Directory dir = fsm.navigateToDirectory(ProcessPath);
+            String name="sysos.file";
+            String fileContents = hm.readFromDisk(dir.getFileAddress(name));
+            Process p = createProcess(fileContents);
+            p.setName(name);
+        }
 
         System.out.println("Finished booting. \n");
     }
 
-    public Process createProcess(String code)
-    {
-        Process process = new Process(pm.getFreeID(),code);
-        pm.addProcess(process);
-        mm.allocateMemory(process);
-
-        page_table.put(process, new ArrayList<>());
-        for(Page page: process.getPages()){
-            if(!page.isInMemory())
-            {
-                String address = hm.findFirstEmptyVirtualMemory();
-                hm.writePage(page, address);
-                page_table.get(process).add(address);
-            }
-        }
-        return process;
-    }
 
     public void executeNextCommand(Process p)
     {
@@ -139,10 +141,16 @@ public class Kernel extends Thread {
         {
 
             // newBlock gleda da li prelazi u sljedeci page neki pa taj page trazi
+            int NumberOfBlocks = Page.pageSize/Assembly.CodeBlockSize;
+
             int newBlock = Assembly.binaryToDecimal(Assembly.blockToString(temp).substring(4));
             Page jumpPage = page;
-            if(newBlock>=Page.pageSize/Assembly.CodeBlockSize*page.getPageNumber()){
-                jumpPage = findPage(p,(int)(newBlock/(Page.pageSize/Assembly.CodeBlockSize)));
+
+            if(newBlock<NumberOfBlocks*page.getPageNumber()) {
+                jumpPage = findPage(p,(int)(newBlock/NumberOfBlocks));
+            }
+            else if(newBlock>=NumberOfBlocks*page.getPageNumber()+NumberOfBlocks){
+                jumpPage = findPage(p,(int)(newBlock/(NumberOfBlocks)));
             }
             switch (command) {
                 case "LDA" -> {
@@ -151,6 +159,7 @@ public class Kernel extends Thread {
                 }
                 case "JMP" -> cpu.JMP(p, newBlock);
                 case "JZ" -> cpu.JZ(p, newBlock);
+                case "JNZ" -> cpu.JZN(p, newBlock);
                 case "STA" -> {
                     cpu.STA(jumpPage, number);
                     p.incrementBlock();
@@ -174,6 +183,31 @@ public class Kernel extends Thread {
         }
     }
 
+    public Process createProcess(String code)
+    {
+        Process process = new Process(pm.getFreeID(),code);
+        pm.addProcess(process);
+        Page lruPage = mm.allocateMemory(process);
+
+        if(lruPage!=null) // znaci da je neka iz rama ispisana
+        {
+            int lruPID = lruPage.getProcessId();
+            String emptyMemory = hm.findFirstEmptyVirtualMemory();
+            hm.writePage(lruPage,emptyMemory);
+            page_table.get(pm.getProcess(lruPID)).add(emptyMemory);
+        }
+
+        page_table.put(process, new ArrayList<>());
+        for(Page page: process.getPages()){
+            if(!page.isInMemory())
+            {
+                String address = hm.findFirstEmptyVirtualMemory();
+                hm.writePage(page, address);
+                page_table.get(process).add(address);
+            }
+        }
+        return process;
+    }
 
     public Page findPage(Process process,int pageNumber)
     {
@@ -198,8 +232,29 @@ public class Kernel extends Thread {
         return f.getPage();
     }
 
+    public void createFile(String name,String path,String content)
+    {
+        String address = hm.findFirstEmpty();
+        File file = new File(name,content,address);
+        fsm.addFile(path, file);
+        hm.writeToDisk(content);
+    }
+
     public String getHDDContent(String hddAddress){
         return hm.readFromDisk(hddAddress);
+    }
+
+    public File getFile(String fileName){
+        Directory dir = currentDirectory;
+        String name= fileName;
+        if(FileSystemManager.isAbsolute(fileName))
+        {
+            dir = fsm.navigateToDirectory(fileName.substring(0,fileName.lastIndexOf("/")));
+            name = fileName.substring(fileName.lastIndexOf("/")+1);
+        }
+        String address = dir.getFileAddress(name);
+        String content = hm.readFromDisk(address);
+        return new File(name,content,address);
     }
 
     public String getFileContents(String filePath){
@@ -219,6 +274,12 @@ public class Kernel extends Thread {
         return getHDDContent(fileAddress);
     }
 
+    public void updateFileContent(String fileName,String newContent)
+    {
+        File file = getFile(fileName);
+        hm.writeToDisk(file.getAddress(),newContent);
+    }
+
     public String getCurrentDirectory(){
         return currentDirectory.getName();
     }
@@ -226,7 +287,7 @@ public class Kernel extends Thread {
     // TERMINAL COMMANDS
     public void rd(String fileName)
     {
-        String name=fileName;
+        String name = fileName;
         Directory dir = currentDirectory;
         if(FileSystemManager.isAbsolute(fileName)){
             dir = fsm.navigateToDirectory(fileName.substring(0,fileName.lastIndexOf("/")));
@@ -235,6 +296,11 @@ public class Kernel extends Thread {
         String address = dir.getFileAddress(name);
 
         System.out.println(getHDDContent(address));
+    }
+
+    public void opn(String fileName,String content)
+    {
+        updateFileContent(fileName,content);
     }
 
     public void cd(String path) {
@@ -271,7 +337,9 @@ public class Kernel extends Thread {
 
     public void mem(){
         double percentOfUsed = mm.getUsedMemory() * 100;
-        System.out.println("Used memory: "+percentOfUsed+"%");
+        int frameCount = mm.getRam().getFrameCount();
+        int remSpace = mm.getRam().remainingSpace();
+        System.out.println("Used memory: "+percentOfUsed+"%, "+(Page.pageSize*(frameCount-remSpace))+"/"+frameCount*Page.pageSize);
     }
 
     public void rm(String file){
@@ -288,6 +356,44 @@ public class Kernel extends Thread {
     public void mkdir(String dir_name) {
         Directory dir = new Directory(dir_name);
         currentDirectory.addDirectory(dir);
+    }
+
+    public void mkfile(String fileName)
+    {
+        Directory dir = currentDirectory;
+        String name = fileName;
+        if(FileSystemManager.isAbsolute(fileName))
+        {
+            dir = fsm.navigateToDirectory(fileName.substring(0,fileName.lastIndexOf("/")));
+            name = fileName.substring(fileName.lastIndexOf("/")+1);
+        }
+        createFile(name,dir.getCurrentDirectory(),"");
+
+    }
+
+    public void hddPrint()
+    {
+        hm.getHDD().printUsedMemory();
+    }
+
+    public void block(String PID)
+    {
+        int pid = Integer.parseInt(PID);
+        Process p = pm.getProcess(pid);
+        if(p==null)
+            System.out.println("Process not found. ");
+        else
+            p.block();
+    }
+
+    public void unblock(String PID)
+    {
+        int pid = Integer.parseInt(PID);
+        Process p = pm.getProcess(pid);
+        if(p==null)
+            System.out.println("Process not found. ");
+        else
+            p.unblock();
     }
 
     public void runs(String path){

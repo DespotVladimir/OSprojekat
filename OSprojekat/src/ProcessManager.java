@@ -7,10 +7,12 @@ public class ProcessManager implements Scheduler{
     private int head;
 
     private ArrayList<Process> processTerminationList;
+    private ArrayList<Integer> IDs;
 
     public ProcessManager() {
         processList = new ArrayList<>();
         processTerminationList = new ArrayList<>();
+        IDs = new ArrayList<>();
         head = 0;
     }
 
@@ -24,7 +26,7 @@ public class ProcessManager implements Scheduler{
             removeProcess(processList.get(head));
             head--;
         }
-
+        head = Math.max(head, 0);
         processList.get(head).waiting();
         head = (head + 1) % processList.size();
         if(head == 0)
@@ -62,29 +64,36 @@ public class ProcessManager implements Scheduler{
             processList.add(p);
         else
             processList.add(head+1,p);
+        IDs.add(p.getID());
     }
     public void removeProcess(Process p) {
         processList.remove(p);
+        IDs.remove(p.getID());
     }
 
     public boolean isEmpty() {
         return processList.isEmpty();
     }
 
+    public Process getProcess(int id) {
+
+        Process[] allProcesses = processList.toArray(new Process[0]);
+
+        for(Process p : allProcesses)
+            if(p.getID()==id)
+                return p;
+
+        return null;
+    }
+
     public int getFreeID()
     {
-        int i=0;
-
-        Process[] processArray = processList.toArray(new Process[0]);
-        for (Process p : processArray)
-        {
-            if(p.getID()!=i)
-                return i;
-            i++;
-
+        for (int j = 0; j < Integer.MAX_VALUE; j++) {
+            if(!IDs.contains(j))
+                return j;
         }
 
-        return i;
+        return -1;
     }
 
     public boolean hasProcessToTerminate() {
