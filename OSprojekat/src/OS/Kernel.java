@@ -1,3 +1,5 @@
+package OS;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -36,6 +38,8 @@ public class Kernel extends Thread {
 
         long startTime = System.currentTimeMillis();
         while(true){
+
+            // Todo POPRAVITI OS.CPU BRZINU
             long now = System.currentTimeMillis();
             if(cpu.getClock()>=CPU.clockCycle)
             {
@@ -104,6 +108,7 @@ public class Kernel extends Thread {
             Process p = createProcess(fileContents);
             p.setName(name);
         }
+
         for(int i=0;i<120;i++)
         {
             String ProcessPath="root/sys";
@@ -284,6 +289,10 @@ public class Kernel extends Thread {
         return currentDirectory.getName();
     }
 
+    public Directory getCurrentDirectory(Directory directory){
+        return currentDirectory;
+    }
+
     // TERMINAL COMMANDS
     public void rd(String fileName)
     {
@@ -310,14 +319,14 @@ public class Kernel extends Thread {
             System.out.println("Moving to: "+ path);
             Directory dir=fsm.navigateToDirectory(path);
             if(dir==null)
-                System.out.println("Directory not found. ");
+                System.out.println("OS.Directory not found. ");
             else
                 currentDirectory = dir;
         }
         else{
             Directory dir = currentDirectory.getDirectory(path);
             if(dir==null)
-                System.out.println("Directory not found. ");
+                System.out.println("OS.Directory not found. ");
             else
                 currentDirectory = dir;
         }
@@ -345,11 +354,11 @@ public class Kernel extends Thread {
     public void rm(String file){
         String s = currentDirectory.removeFile(file);
         if(s==null)
-            System.out.println("File " + file + " not found in current directory. ");
+            System.out.println("OS.File " + file + " not found in current directory. ");
         else
         {
             hm.writeToDisk(s.split("&")[1],null);
-            System.out.println("File "+file+" removed.");
+            System.out.println("OS.File "+file+" removed.");
         }
     }
 
@@ -381,7 +390,7 @@ public class Kernel extends Thread {
         int pid = Integer.parseInt(PID);
         Process p = pm.getProcess(pid);
         if(p==null)
-            System.out.println("Process not found. ");
+            System.out.println("OS.Process not found. ");
         else
             p.block();
     }
@@ -391,7 +400,7 @@ public class Kernel extends Thread {
         int pid = Integer.parseInt(PID);
         Process p = pm.getProcess(pid);
         if(p==null)
-            System.out.println("Process not found. ");
+            System.out.println("OS.Process not found. ");
         else
             p.unblock();
     }

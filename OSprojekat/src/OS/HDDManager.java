@@ -1,3 +1,5 @@
+package OS;
+
 public class HDDManager {
 
     private HDD hdd;

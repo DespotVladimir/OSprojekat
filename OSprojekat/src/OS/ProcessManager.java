@@ -1,3 +1,5 @@
+package OS;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -5,9 +7,12 @@ public class ProcessManager implements Scheduler{
     private ArrayList<Process> processList;
 
     private int head;
+    private int sameProcess;
 
     private ArrayList<Process> processTerminationList;
     private ArrayList<Integer> IDs;
+
+
 
     public ProcessManager() {
         processList = new ArrayList<>();
@@ -24,19 +29,48 @@ public class ProcessManager implements Scheduler{
         {
             processTerminationList.add(processList.get(head));
             removeProcess(processList.get(head));
-            head--;
+            head = Math.max(head-1, 0);
         }
-        head = Math.max(head, 0);
+
         processList.get(head).waiting();
-        head = (head + 1) % processList.size();
-        if(head == 0)
-            sortProcessList();
+        //
+
+
         do {
 
-            if(processList.get(head).getState()==ProcessState.TERMINATED)
-            {
-                processTerminationList.add(processList.get(head));
-                removeProcess(processList.get(head));
+            sortProcessList();
+
+            if(sameProcess>=100){
+
+                // ide RoundRobin ako je pocetni proces izabran 10 puta
+                // traje do kraja reda
+
+                head = (head + 1) % processList.size();
+
+                if(head==0){
+                    sameProcess=0;
+                    continue;
+                }
+
+
+
+                if(processList.get(head).getState()==ProcessState.TERMINATED)
+                {
+                    processTerminationList.add(processList.get(head));
+                    removeProcess(processList.get(head));
+                }
+            }
+            else{
+
+                // Normalno uzima 1 element niza
+
+                if(processList.get(head).getState()==ProcessState.TERMINATED)
+                {
+                    processTerminationList.add(processList.get(head));
+                    removeProcess(processList.get(head));
+                    sameProcess--;
+                }
+                sameProcess++;
             }
 
             if(processList.isEmpty())
@@ -63,7 +97,8 @@ public class ProcessManager implements Scheduler{
         if(processList.isEmpty())
             processList.add(p);
         else
-            processList.add(head+1,p);
+            processList.add(head,p);
+
         IDs.add(p.getID());
     }
     public void removeProcess(Process p) {

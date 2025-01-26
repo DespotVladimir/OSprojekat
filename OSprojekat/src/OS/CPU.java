@@ -1,3 +1,5 @@
+package OS;
+
 import java.util.Map;
 
 public class CPU {

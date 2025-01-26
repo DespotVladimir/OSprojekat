@@ -1,3 +1,5 @@
+package OS;
+
 import java.util.ArrayList;
 
 public class Directory {
@@ -21,6 +23,10 @@ public class Directory {
         listDirectory = new ArrayList<>();
         this.currentDirectory = currentDirectory;
         this.previousDirectory = currentDirectory.substring(0, currentDirectory.lastIndexOf("/"));
+    }
+
+    public Directory() {
+
     }
 
     public void addDirectory(Directory directory) {
@@ -103,12 +109,17 @@ public class Directory {
     }
 
     public void printAll(){
-        System.out.println("Directory {" + name + "}: " );
+        System.out.println("OS.Directory {" + name + "}: " );
         for(Directory directory : listDirectory){
             System.out.println("/"+directory.getName());
         }
         for(String file : files){
             System.out.println(file.split("&")[0]);
         }
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 }

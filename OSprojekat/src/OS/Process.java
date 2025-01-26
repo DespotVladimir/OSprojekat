@@ -1,3 +1,5 @@
+package OS;
+
 import java.util.ArrayList;
 
 public class Process {
@@ -32,6 +34,23 @@ public class Process {
         generatePages();
 
         totalTime = code.split("\n").length;
+        assessTime();
+    }
+
+    private void assessTime(){
+        String[] codeParts = code.split("\n");
+        for (int i = 0; i < codeParts.length; i++) {
+            String[] parts = codeParts[i].split(" ");
+            String command = parts[0];
+            if(command.equals("JMP"))
+            {
+                int number = Integer.parseInt(parts[1].replace(";",""));
+                if(number <= i){
+                    totalTime = Integer.MAX_VALUE;
+                    break;
+                }
+            }
+        }
     }
 
     private void generatePages()
@@ -80,11 +99,11 @@ public class Process {
     }
 
     public void setPageNumber(int pageNumber) {
-        this.pageNumber = pageNumber;
+        this.pageNumber = pageBlock;
     }
 
     public int getRemainingTime(){
-        return totalTime;
+        return totalTime - pageBlock;
     }
 
     public ProcessState getState(){
@@ -145,12 +164,13 @@ public class Process {
 
     @Override
     public String toString() {
-        return "Process{" +
+        return "OS.Process{" +
                 "id: " + id +
                 ", name: " + name +
                 ", state: " + state +
                 ", pageNumber: " + pageNumber +
                 ", pageBlock: " + pageBlock +
+                ", remainingTime: " + getRemainingTime() +
                 '}';
     }
 }

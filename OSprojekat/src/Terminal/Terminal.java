@@ -1,15 +1,22 @@
+package Terminal;
+
+import GUI.mainGUI;
+import OS.File;
+import OS.Kernel;
+
 import java.util.Scanner;
 
 public class Terminal {
     private Kernel kernel;
     private Thread kernelThread;
 
-    Terminal(Kernel kernel) {
+    public Terminal(Kernel kernel) {
         this.kernel = kernel;
         kernelThread = new Thread(kernel);
     }
 
     public void start(){
+
         try {
             kernel.boot();
         } catch (Exception e) {
@@ -82,7 +89,7 @@ public class Terminal {
 
                     if(file==null)
                     {
-                        System.out.println("File not found");
+                        System.out.println("OS.File not found");
                         continue;
                     }
                     System.out.println("Write to "+file.getName()+" (type 'exit' to exit file)");

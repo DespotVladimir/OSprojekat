@@ -1,3 +1,5 @@
+package OS;
+
 public class Page {
 
     public static final int pageSize = 4096;

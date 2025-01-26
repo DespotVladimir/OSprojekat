@@ -75,7 +75,7 @@ ings in this Software without prior written authorization from him.
 
 ```
 
-### AUTHORS File Information
+### AUTHORS OS.File Information
 ```
 LIBXSLT REFERENCE LIBRARY AUTHORS
 =============================

@@ -1,3 +1,5 @@
+package OS;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -5,11 +7,11 @@ import java.util.HashMap;
 public class HDD {
 
     /*
-    HDD je sastavljen od memorije koja je predstavljena arraylistom ciji clanovi su predstavljeni kao blokovi koji su
+    OS.HDD je sastavljen od memorije koja je predstavljena arraylistom ciji clanovi su predstavljeni kao blokovi koji su
     jednaki velicini stranica.
     Pristupanje stranicama je pomocu adresa u formatu 0x0 ili 0, adrese su jednake indeks*velicina_stranice
 
-    String str = "0x" + String.format("%010d", i * Page.pageSize);
+    String str = "0x" + String.format("%010d", i * OS.Page.pageSize);
      */
 
     private final int size;     // Broj blokova

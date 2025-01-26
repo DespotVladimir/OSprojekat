@@ -1,3 +1,5 @@
+package OS;
+
 public class Register {
     private final String name;
     private final String address;

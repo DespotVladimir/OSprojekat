@@ -39,7 +39,7 @@ Copyright (c) 2022 Oracle and/or its affiliates.
 
 ```
 
-### AUTHORS File Information
+### AUTHORS OS.File Information
 ```
 
 libffi was originally written by Anthony Green <green@moxielogic.com>.

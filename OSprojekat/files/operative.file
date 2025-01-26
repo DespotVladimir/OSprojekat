@@ -1,4 +1,4 @@
 root/sys
-JMP 1;
+LDA 200;
 JMP 0;
 HLT;

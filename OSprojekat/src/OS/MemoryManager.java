@@ -1,3 +1,5 @@
+package OS;
+
 public class MemoryManager {
     private final RAM ram;
 

@@ -1,15 +1,11 @@
-import GUI.*;
+import OS.Kernel;
+import Terminal.Terminal;
 
 public class Main {
     public static void main(String[] args)  {
         Kernel kernel = new Kernel();
 
-        //mainGUI gui = new mainGUI();
-        //gui.start();
-
         Terminal terminal = new Terminal(kernel);
         terminal.start();
-
-
     }
 }

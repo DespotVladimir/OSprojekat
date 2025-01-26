@@ -1,3 +1,5 @@
+package OS;
+
 public class Frame {
     private final int frameId;  // ID frejma
     private Page page;          // Stranica koja se nalazi u ovom frejmu
@@ -26,9 +28,9 @@ public class Frame {
     @Override
     public String toString() {
         if (getPage() == null) {
-            return "Frame " + getFrameId() + ": EMPTY";
+            return "OS.Frame " + getFrameId() + ": EMPTY";
         } else {
-            return "Frame " + getFrameId() + ": " + getPage();
+            return "OS.Frame " + getFrameId() + ": " + getPage();
         }
     }
 }

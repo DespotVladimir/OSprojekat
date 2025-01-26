@@ -1,3 +1,5 @@
+package OS;
+
 import java.util.ArrayList;
 
 public class RAM {
@@ -111,12 +113,12 @@ public class RAM {
     }
 
     public void printFrames() {
-        System.out.println("RAM frames:");
+        System.out.println("OS.RAM frames:");
         for (Frame frame : frames) {
             if (frame.getPage() == null) {
-                System.out.println("Frame " + frame.getFrameId() + ": EMPTY");
+                System.out.println("OS.Frame " + frame.getFrameId() + ": EMPTY");
             } else {
-                System.out.println("Frame " + frame.getFrameId() + ": " + frame.getPage());
+                System.out.println("OS.Frame " + frame.getFrameId() + ": " + frame.getPage());
             }
         }
     }
