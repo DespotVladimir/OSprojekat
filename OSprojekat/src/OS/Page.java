@@ -97,7 +97,7 @@ public class Page {
     @Override
     public String toString() {
         return  "PN" + pageNumber +
-                "&PID" + processId +
-                "&"+dataToString();
+                "/PID" + processId +
+                "/"+dataToString();
     }
 }

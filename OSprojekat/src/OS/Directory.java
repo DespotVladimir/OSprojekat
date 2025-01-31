@@ -118,6 +118,15 @@ public class Directory {
         }
     }
 
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setCurrentDirectory(String currentDirectory) {
+        this.currentDirectory = currentDirectory;
+    }
+
     @Override
     public String toString() {
         return getName();

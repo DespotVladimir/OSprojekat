@@ -1,6 +1,7 @@
 package Terminal;
 
 import GUI.mainGUI;
+import OS.Directory;
 import OS.File;
 import OS.Kernel;
 

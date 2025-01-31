@@ -5,6 +5,7 @@ public class FileSystemManager {
 
     public FileSystemManager() {
         rootDirectory = new Directory("root");
+        rootDirectory.setCurrentDirectory("root");
     }
 
     public void addFile(String path,File File){

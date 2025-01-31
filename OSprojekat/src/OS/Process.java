@@ -164,7 +164,7 @@ public class Process {
 
     @Override
     public String toString() {
-        return "OS.Process{" +
+        return "Process{" +
                 "id: " + id +
                 ", name: " + name +
                 ", state: " + state +

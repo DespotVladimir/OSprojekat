@@ -30,6 +30,8 @@ public class Kernel extends Thread {
 
     }
 
+
+    private int time;
     public void start(){
         System.out.println("Starting kernel");
 
@@ -37,33 +39,35 @@ public class Kernel extends Thread {
 
 
         long startTime = System.currentTimeMillis();
+        time = 1000;
         while(true){
+            try{
+                long now = System.currentTimeMillis();
+                long diff = now - startTime;
+                if(diff<time)
+                {
+                    if(cpu.getClock() > CPU.clockCycle) {
+                        continue;
+                    }
 
-            // Todo POPRAVITI OS.CPU BRZINU
-            long now = System.currentTimeMillis();
-            if(cpu.getClock()>=CPU.clockCycle)
-            {
-                if(now-startTime < CPU.clockCycle) {
-                    continue;
-                }
-                else {
+                }else {
                     cpu.resetClock();
                     startTime = System.currentTimeMillis();
                 }
-            }
 
-            if(cpu.isNextCycle())
-            {
-                currentProcess.setCpuAccumulator(cpu.getAC());
-                currentProcess = pm.scheduleNextProcess();
-                cpu.getRegister("AC").setValue(currentProcess.getCpuAccumulator());
-            }
-            if(currentProcess.getState()==ProcessState.TERMINATED)
-                currentProcess = pm.scheduleNextProcess();
-            if(pm.hasProcessToTerminate())
-                for(Process p : pm.getProcessesToTerminate())
-                    mm.freeMemory(p);
-            executeNextCommand(currentProcess);
+                if(cpu.isNextCycle())
+                {
+                    currentProcess.setCpuAccumulator(cpu.getAC());
+                    currentProcess = pm.scheduleNextProcess();
+                    cpu.getRegister("AC").setValue(currentProcess.getCpuAccumulator());
+                }
+                if(currentProcess.getState()==ProcessState.TERMINATED)
+                    currentProcess = pm.scheduleNextProcess();
+                if(pm.hasProcessToTerminate())
+                    for(Process p : pm.getProcessesToTerminate())
+                        mm.freeMemory(p);
+                executeNextCommand(currentProcess);
+            }catch (Exception _){}
         }
     }
 
@@ -109,7 +113,7 @@ public class Kernel extends Thread {
             p.setName(name);
         }
 
-        for(int i=0;i<120;i++)
+        for(int i=0;i<3;i++)
         {
             String ProcessPath="root/sys";
             Directory dir = fsm.navigateToDirectory(ProcessPath);
@@ -293,6 +297,11 @@ public class Kernel extends Thread {
         return currentDirectory;
     }
 
+    public void setCPUspeed(int instructions,int milisecods){
+        time=milisecods;
+        CPU.clockCycle=instructions;
+    }
+
     // TERMINAL COMMANDS
     public void rd(String fileName)
     {
@@ -316,17 +325,17 @@ public class Kernel extends Thread {
         boolean isAbsolute = FileSystemManager.isAbsolute(path);
         if(isAbsolute)
         {
-            System.out.println("Moving to: "+ path);
-            Directory dir=fsm.navigateToDirectory(path);
+            System.out.println("\nMoving to: "+ path);
+            Directory dir = fsm.navigateToDirectory(path);
             if(dir==null)
-                System.out.println("OS.Directory not found. ");
+                System.out.println("Directory not found. ");
             else
                 currentDirectory = dir;
         }
         else{
             Directory dir = currentDirectory.getDirectory(path);
             if(dir==null)
-                System.out.println("OS.Directory not found. ");
+                System.out.println("Directory not found. ");
             else
                 currentDirectory = dir;
         }
@@ -354,16 +363,27 @@ public class Kernel extends Thread {
     public void rm(String file){
         String s = currentDirectory.removeFile(file);
         if(s==null)
-            System.out.println("OS.File " + file + " not found in current directory. ");
+            System.out.println("\nFile " + file + " not found in current directory. ");
         else
         {
             hm.writeToDisk(s.split("&")[1],null);
-            System.out.println("OS.File "+file+" removed.");
+            System.out.println("\nFile "+file+" removed.");
         }
     }
 
     public void mkdir(String dir_name) {
-        Directory dir = new Directory(dir_name);
+        String path,name;
+        Directory dir;
+        if(FileSystemManager.isAbsolute(dir_name))
+        {
+            name = dir_name.substring(dir_name.lastIndexOf("/")+1);
+            path = dir_name.substring(0,dir_name.lastIndexOf("/"));
+        }
+        else {
+            name = dir_name;
+            path = currentDirectory.getCurrentDirectory() + "/" + name;
+        }
+        dir = new Directory(name,path);
         currentDirectory.addDirectory(dir);
     }
 
@@ -390,7 +410,7 @@ public class Kernel extends Thread {
         int pid = Integer.parseInt(PID);
         Process p = pm.getProcess(pid);
         if(p==null)
-            System.out.println("OS.Process not found. ");
+            System.out.println("Process not found. ");
         else
             p.block();
     }
@@ -400,12 +420,13 @@ public class Kernel extends Thread {
         int pid = Integer.parseInt(PID);
         Process p = pm.getProcess(pid);
         if(p==null)
-            System.out.println("OS.Process not found. ");
+            System.out.println("Process not found. ");
         else
             p.unblock();
     }
 
     public void runs(String path){
+
         String fileContent = getFileContents(path);
         int nameIndex = path.lastIndexOf("/")+1;
         Process p = createProcess(fileContent);
@@ -413,6 +434,30 @@ public class Kernel extends Thread {
             p.setName(path);
         else
             p.setName(path.substring(nameIndex));
+    }
+
+    public CPU getCpu() {
+        return cpu;
+    }
+
+    public FileSystemManager getFsm() {
+        return fsm;
+    }
+
+    public ProcessManager getPm() {
+        return pm;
+    }
+
+    public MemoryManager getMm() {
+        return mm;
+    }
+
+    public HDDManager getHm() {
+        return hm;
+    }
+
+    public void setCurrentDirectory(Directory currentDirectory) {
+        this.currentDirectory = currentDirectory;
     }
 
 

@@ -94,11 +94,7 @@ public class ProcessManager implements Scheduler{
     }
 
     public void addProcess(Process p) {
-        if(processList.isEmpty())
-            processList.add(p);
-        else
-            processList.add(head,p);
-
+        processList.add(p);
         IDs.add(p.getID());
     }
     public void removeProcess(Process p) {
@@ -144,5 +140,13 @@ public class ProcessManager implements Scheduler{
         Process[] processArray = processList.toArray(new Process[0]);
         for(Process p : processArray)
             System.out.println(p);
+    }
+
+    public int getProcessNumber(){
+        return processList.size();
+    }
+
+    public ArrayList<Process> getAllProcesses(){
+        return processList;
     }
 }

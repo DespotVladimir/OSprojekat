@@ -107,7 +107,7 @@ public class HDD {
         return Integer.parseInt(address)/Page.pageSize;
     }
 
-    private String encodeAddress(int address) {
+    public String encodeAddress(int address) {
         return "0x"+String.format("%010d", address*Page.pageSize);
     }
 
@@ -121,6 +121,10 @@ public class HDD {
         for(int i=0;i<memory.size();i+=1) {
             System.out.println(encodeAddress(i) + ":\t" + memory.get(i));
         }
+    }
+
+    public String[] getAllMemory() {
+        return memory.toArray(new String[0]);
     }
 
     public void printUsedMemory() {

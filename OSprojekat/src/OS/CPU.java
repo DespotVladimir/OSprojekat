@@ -19,7 +19,7 @@ public class CPU {
 
 
     private boolean busy;
-    public static final int clockCycle = 10;   // po 0.1s
+    public static int clockCycle = 1;   // po 1s
     public int clock;
 
     private final int quantumTime;

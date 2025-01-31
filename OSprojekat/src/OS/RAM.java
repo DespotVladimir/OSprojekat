@@ -113,15 +113,18 @@ public class RAM {
     }
 
     public void printFrames() {
-        System.out.println("OS.RAM frames:");
+        System.out.println("RAM frames:");
         for (Frame frame : frames) {
             if (frame.getPage() == null) {
-                System.out.println("OS.Frame " + frame.getFrameId() + ": EMPTY");
+                System.out.println("Frame " + frame.getFrameId() + ": EMPTY");
             } else {
-                System.out.println("OS.Frame " + frame.getFrameId() + ": " + frame.getPage());
+                System.out.println("Frame " + frame.getFrameId() + ": " + frame.getPage());
             }
         }
     }
 
 
+    public ArrayList<Frame> getFrames() {
+        return frames;
+    }
 }

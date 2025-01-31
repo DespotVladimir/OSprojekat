@@ -28,9 +28,9 @@ public class Frame {
     @Override
     public String toString() {
         if (getPage() == null) {
-            return "OS.Frame " + getFrameId() + ": EMPTY";
+            return "Frame " + getFrameId() + ": EMPTY";
         } else {
-            return "OS.Frame " + getFrameId() + ": " + getPage();
+            return "Frame " + getFrameId() + ": " + getPage();
         }
     }
 }
