@@ -82,7 +82,7 @@ public class CPU {
     public void SUB(String number){
         int num = Assembly.binaryToDecimal(number);
         int ac_num=Assembly.binaryToDecimal(AC.getValue());
-        AC.setValue(Assembly.decimalTo12BitBinary(String.valueOf(num-ac_num)));
+        AC.setValue(Assembly.decimalTo12BitBinary(String.valueOf(ac_num-num)));
         increment();
     }
 
@@ -106,15 +106,19 @@ public class CPU {
     }
 
     public void JZ(Process p, int number) {
-        if(Assembly.binaryToDecimal(AC.getValue())!=0)
+        int ACValue = Assembly.binaryToDecimal(AC.getValue());
+        if(ACValue!=0)
             return;
         JMP(p,number);
     }
 
-    public void JZN(Process p, int number) {
+    public boolean JNZ(Process p, int number) {
+        int ACValue = Assembly.binaryToDecimal(AC.getValue());
         if(Assembly.binaryToDecimal(AC.getValue())<=0)
-            return;
+            return false;
+
         JMP(p,number);
+        return true;
     }
 
     public void HLT(){

@@ -12,7 +12,7 @@ public class ProcessManager implements Scheduler{
     private ArrayList<Process> processTerminationList;
     private ArrayList<Integer> IDs;
 
-
+    public boolean RoundRobinEnabled;
 
     public ProcessManager() {
         processList = new ArrayList<>();
@@ -33,20 +33,18 @@ public class ProcessManager implements Scheduler{
         }
 
         processList.get(head).waiting();
-        //
-
 
         do {
 
             sortProcessList();
 
-            if(sameProcess>=100){
 
-                // ide RoundRobin ako je pocetni proces izabran 10 puta
+            if(sameProcess>=100&&RoundRobinEnabled){
+
+                // ide RoundRobin ako je pocetni proces izabran vise puta
                 // traje do kraja reda
 
                 head = (head + 1) % processList.size();
-
                 if(head==0){
                     sameProcess=0;
                     continue;
@@ -63,7 +61,7 @@ public class ProcessManager implements Scheduler{
             else{
 
                 // Normalno uzima 1 element niza
-
+                head=0;
                 if(processList.get(head).getState()==ProcessState.TERMINATED)
                 {
                     processTerminationList.add(processList.get(head));
@@ -86,7 +84,14 @@ public class ProcessManager implements Scheduler{
     }
 
     private void sortProcessList() {
-        processList.sort(Comparator.comparingInt(Process::getRemainingTime));
+        processList.sort((o1, o2) -> {
+            if(o1.getState()==ProcessState.BLOCKED)
+                return 1;
+            if(o2.getState()==ProcessState.BLOCKED)
+                return -1;
+            return Integer.compare(o1.getRemainingTime(), o2.getRemainingTime());
+        });
+
     }
 
     public Process getCurrentProcess() {
@@ -131,8 +136,12 @@ public class ProcessManager implements Scheduler{
         return !processTerminationList.isEmpty();
     }
 
-    public Process[] getProcessesToTerminate(){
-        return processTerminationList.toArray(new Process[0]);
+    public ArrayList<Process> getProcessesToTerminate(){
+        return processTerminationList;
+    }
+
+    public void processTerminated(Process process) {
+        processTerminationList.remove(process);
     }
 
     public void printAll(){

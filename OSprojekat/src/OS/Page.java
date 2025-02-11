@@ -16,6 +16,8 @@ public class Page {
         this.inMemory = false;
         this.lastUsedTime = System.currentTimeMillis();
         this.data = new Byte[4096];
+        for(int i = 0; i < 4096; i++)
+            this.data[i] = 0;
     }
 
     public Page(int pageNumber, int processId, Byte[] data) {
@@ -63,7 +65,10 @@ public class Page {
     public String dataToString() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < pageSize; i++) {
-            sb.append(data[i]);
+            if(data[i]==null)
+                sb.append("0");
+            else
+                sb.append(data[i]);
         }
         return sb.toString();
     }

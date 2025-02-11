@@ -1,0 +1,14 @@
+root/src/run
+LDA 200;
+ADD 20;
+STA 200;
+ADD 20;
+STA 300;
+LDA 350;
+ADD 50;
+STA 350;
+LDA 350;
+SUB 1;
+STA 350;
+JNZ 9;
+HLT;

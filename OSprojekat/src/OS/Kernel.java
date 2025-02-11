@@ -3,7 +3,9 @@ package OS;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class Kernel extends Thread {
     private final CPU cpu;
@@ -32,7 +34,7 @@ public class Kernel extends Thread {
 
 
     private int time;
-    public void start(){
+    public void start() {
         System.out.println("Starting kernel");
 
         Process currentProcess = pm.scheduleNextProcess();;
@@ -40,7 +42,7 @@ public class Kernel extends Thread {
 
         long startTime = System.currentTimeMillis();
         time = 1000;
-        while(true){
+        while(true){    // MAIN LOOP
             try{
                 long now = System.currentTimeMillis();
                 long diff = now - startTime;
@@ -57,17 +59,30 @@ public class Kernel extends Thread {
 
                 if(cpu.isNextCycle())
                 {
+                    cpu.resetInstruction();
                     currentProcess.setCpuAccumulator(cpu.getAC());
                     currentProcess = pm.scheduleNextProcess();
                     cpu.getRegister("AC").setValue(currentProcess.getCpuAccumulator());
                 }
                 if(currentProcess.getState()==ProcessState.TERMINATED)
                     currentProcess = pm.scheduleNextProcess();
-                if(pm.hasProcessToTerminate())
-                    for(Process p : pm.getProcessesToTerminate())
-                        mm.freeMemory(p);
+                if(pm.hasProcessToTerminate()){
+
+                    for(Process process : pm.getProcessesToTerminate())
+                    {
+                        terminateProcess(process);
+                    }
+                    pm.getProcessesToTerminate().clear();
+
+                }
                 executeNextCommand(currentProcess);
-            }catch (Exception _){}
+            }catch (Exception e){
+
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+                System.out.println(Arrays.toString(currentProcess.getPages()));
+                System.exit(-1);
+            }
         }
     }
 
@@ -135,9 +150,10 @@ public class Kernel extends Thread {
         Page page;
         try{
             page = findPage(p,numOfPages);
+            if(!page.isInMemory())
+                setInMemoryHDDPage(page,p);
 
         }catch (Exception _){
-            // TODO Nemam pojma sto ovo ne radi, ako prekines ovdje radi normalno sljedeci put
             return;
         }
         Byte[] temp = page.getMemoryBlock(block);
@@ -155,25 +171,31 @@ public class Kernel extends Thread {
             int newBlock = Assembly.binaryToDecimal(Assembly.blockToString(temp).substring(4));
             Page jumpPage = page;
 
-            if(newBlock<NumberOfBlocks*page.getPageNumber()) {
-                jumpPage = findPage(p,(int)(newBlock/NumberOfBlocks));
+            jumpPage = findPage(p,(int)(newBlock/NumberOfBlocks));
+
+            if(!jumpPage.isInMemory()){
+                jumpPage = setInMemoryHDDPage(jumpPage,p);
             }
-            else if(newBlock>=NumberOfBlocks*page.getPageNumber()+NumberOfBlocks){
-                jumpPage = findPage(p,(int)(newBlock/(NumberOfBlocks)));
-            }
+
             switch (command) {
+
                 case "LDA" -> {
                     cpu.LDA(jumpPage, number);
                     p.incrementBlock();
                 }
                 case "JMP" -> cpu.JMP(p, newBlock);
                 case "JZ" -> cpu.JZ(p, newBlock);
-                case "JNZ" -> cpu.JZN(p, newBlock);
+                case "JNZ" -> {
+                    boolean returns = cpu.JNZ(p, newBlock);
+                    if(!returns)
+                        p.incrementBlock();
+                }
                 case "STA" -> {
                     cpu.STA(jumpPage, number);
                     p.incrementBlock();
                 }
             }
+
         }else{
             switch (command) {
                 case "HLT" -> {
@@ -206,7 +228,9 @@ public class Kernel extends Thread {
             page_table.get(pm.getProcess(lruPID)).add(emptyMemory);
         }
 
-        page_table.put(process, new ArrayList<>());
+        ArrayList<String> pTable = new ArrayList<>();
+        page_table.put(process, pTable);
+
         for(Page page: process.getPages()){
             if(!page.isInMemory())
             {
@@ -216,6 +240,25 @@ public class Kernel extends Thread {
             }
         }
         return process;
+    }
+
+    public void terminateProcess(Process process){
+        for(String address : page_table.get(process)){
+            hm.getHDD().writeToMemory(address,null);
+        }
+        mm.freeMemory(process);
+    }
+
+    public Page setInMemoryHDDPage(Page page,Process process){
+        Page ret = process.getPage(page.getPageNumber());
+        Page res = mm.getRam().loadPageIntoFrame(ret);
+        if(res!=null)
+            res.setInMemory(false);
+        ret.setInMemory(true);
+        String address = hm.getHDD().encodeAddress(page.getPageNumber());
+        hm.getHDD().writeToMemory(address,null);
+        page_table.get(process).remove(address);
+        return ret;
     }
 
     public Page findPage(Process process,int pageNumber)
@@ -236,7 +279,6 @@ public class Kernel extends Thread {
 
             }
         }
-
 
         return f.getPage();
     }
@@ -300,6 +342,10 @@ public class Kernel extends Thread {
     public void setCPUspeed(int instructions,int milisecods){
         time=milisecods;
         CPU.clockCycle=instructions;
+    }
+
+    public void setRR(boolean enabled){
+        pm.RoundRobinEnabled=enabled;
     }
 
     // TERMINAL COMMANDS

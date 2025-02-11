@@ -27,7 +27,6 @@ public class MemoryManager {
             {
                 Frame f = ram.getFrameForPage(p.getID(),page.getPageNumber());
                 ram.freeFrame(f.getFrameId());
-                page.setInMemory(false);
             }
         }
     }

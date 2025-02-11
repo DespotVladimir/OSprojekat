@@ -66,12 +66,16 @@ public class HDDManager {
     public String findFirstEmpty() {
         if(hdd.getData(fileFirstEmpty) != null)
             fileFirstEmpty = hdd.findFirstEmpty(fileFirstEmpty);
+        if(fileFirstEmpty == null)
+            fileFirstEmpty=hdd.findFirstEmpty();
         return fileFirstEmpty;
     }
 
     public String findFirstEmptyVirtualMemory() {
         if (hdd.getData(firstVirtualMemory) != null)
             firstVirtualMemory = hdd.findFirstEmpty(firstVirtualMemory);
+        if(firstVirtualMemory == null)
+            firstVirtualMemory=hdd.findFirstEmpty();
         return firstVirtualMemory;
     }
 

@@ -1,8 +1,6 @@
 package GUI;
 
-import OS.Frame;
-import OS.Kernel;
-import OS.Page;
+import OS.*;
 import OS.Process;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -10,15 +8,14 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
+import javax.swing.*;
 
 public class TaskManager {
     private Kernel kernel;
@@ -191,11 +188,24 @@ public class TaskManager {
         pcsViews.getItems().addAll(kernel.getPm().getAllProcesses());
         lblProcessNum = new Label("Number of processes: " + kernel.getPm().getProcessNumber());
 
+        Button btnBlock = new Button("Block/Unblock");
+        btnBlock.setOnAction(_->{
+            if(pcsViews.getSelectionModel().getSelectedItem()==null)
+                return;
+            Process p = pcsViews.getSelectionModel().getSelectedItem();
+            if(p.getState()== ProcessState.BLOCKED)
+                kernel.unblock(Integer.toString(p.getID()));
+            else
+                kernel.block(Integer.toString(p.getID()));
+        });
+
+        CheckBox cxRoundRobin = new CheckBox("Enable Round Robin");
+        cxRoundRobin.setOnAction(_-> kernel.setRR(cxRoundRobin.isSelected()));
 
         pcsViews.setMinSize(500,300);
         pcsViews.setPrefSize(500,300);
 
-        vPCS.getChildren().addAll(lblPCS,pcsViews,lblProcessNum);
+        vPCS.getChildren().addAll(lblPCS,pcsViews,lblProcessNum,btnBlock,cxRoundRobin);
         vPCS.setStyle("-fx-border-color: gray");
         vPCS.setPadding(new Insets(30));
 
@@ -204,8 +214,13 @@ public class TaskManager {
     }
 
     private void updatePCSView(){
+        Process p = pcsViews.getSelectionModel().getSelectedItem();
         pcsViews.getItems().clear();
+
         pcsViews.getItems().addAll(kernel.getPm().getAllProcesses());
+
+        if(pcsViews.getItems().contains(p))
+            pcsViews.getSelectionModel().select(p);
         lblProcessNum = new Label("Number of processes: " + kernel.getPm().getProcessNumber());
     }
 
@@ -229,7 +244,8 @@ public class TaskManager {
             }
         });
 
-        Label lblSlash = new Label("instructions /");
+        Label lblSlash = new Label("instructions");
+        /*lblSlash.setText("instructions /");
         TextField txtCPUSeconds = new TextField();
         txtCPUSeconds.textProperty().addListener((_, _, newValue) -> {
             if (!newValue.equals(".")) {
@@ -239,16 +255,21 @@ public class TaskManager {
                 txtCPUSeconds.setText(newValue.replaceAll("[^\\d]", ""));
             }
         });
-        Label lblSeconds = new Label("seconds");
+        Label lblSeconds = new Label("seconds");*/
 
         Button btnApply = new Button("Apply");
-        btnApply.setOnAction(event -> {
-            int instrucions = Integer.parseInt(txtCPUinstructions.getText());
-            int miliseconds = Math.max((int)(Float.parseFloat(txtCPUSeconds.getText())*1000),10);
-            kernel.setCPUspeed(instrucions,miliseconds);
+        btnApply.setOnAction(_ -> {
+            int instructions = 1;
+            if(!txtCPUinstructions.getText().isEmpty()){
+                instructions = Integer.parseInt(txtCPUinstructions.getText());
+            }
+            int miliseconds=1000;
+            //miliseconds = Math.max((int)(Float.parseFloat(txtCPUSeconds.getText())*1000),10);
+            kernel.setCPUspeed(instructions,miliseconds);
         });
 
-        hBox.getChildren().addAll(txtCPUinstructions,lblSlash,txtCPUSeconds,lblSeconds,btnApply);
+        //hBox.getChildren().addAll(txtCPUinstructions,lblSlash,txtCPUSeconds,lblSeconds,btnApply);
+        hBox.getChildren().addAll(txtCPUinstructions,btnApply);
 
         vCPU.getChildren().addAll(lblCPU,lblCurrentProcess,lblSettings,hBox);
 

@@ -104,7 +104,8 @@ public class Assembly {
         return command.equals("JMP")
                 || command.equals("JZ")
                 || command.equals("STA")
-                || command.equals("LDA");
+                || command.equals("LDA")
+                || command.equals("JNZ");
     }
 
     public static int getNumberFromBlock(String binaryBlock)

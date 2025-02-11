@@ -22,7 +22,7 @@ public class Process {
     public Process(int id, String code,String name) {
         this.id = id;
         this.state = ProcessState.NEW;
-        this.code = code;
+        this.code = code.replace("\n","");
         this.name = name;
 
         pageNumber = 0;
@@ -33,12 +33,12 @@ public class Process {
         pages = new ArrayList<>();
         generatePages();
 
-        totalTime = code.split("\n").length;
+        totalTime = code.split(";").length;
         assessTime();
     }
 
     private void assessTime(){
-        String[] codeParts = code.split("\n");
+        String[] codeParts = code.split(";");
         for (int i = 0; i < codeParts.length; i++) {
             String[] parts = codeParts[i].split(" ");
             String command = parts[0];
@@ -67,6 +67,27 @@ public class Process {
             Page page = new Page(i,id,temp);
             pages.add(page);
         }
+        String[] codeParts = code.split(";");
+
+        for(int i = 0; i < codeParts.length; i++){
+            String[] parts = codeParts[i].split(" ");
+            String command = parts[0].trim();
+            int pageSize = Page.pageSize / Assembly.CodeBlockSize;
+            if(command.equals("JMP")||command.equals("JNZ")||command.equals("STA")||command.equals("LDA"))
+            {
+                int number = Integer.parseInt(parts[1].replace(";",""));
+                int pageJumpNumber = number / pageSize + 1;
+
+                if(pages.size()<pageJumpNumber){
+                    for(int j = pages.size();j<pageJumpNumber;j++){
+                        Page page = new Page(j,id);
+                        pages.add(page);
+                    }
+                }
+            }
+        }
+
+
     }
 
     public void start(){
@@ -139,6 +160,10 @@ public class Process {
     public Page[] getPages()
     {
         return pages.toArray(new Page[0]);
+    }
+
+    public Page getPage(int PageNumber){
+        return pages.get(PageNumber);
     }
 
 
