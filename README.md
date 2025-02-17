@@ -70,7 +70,9 @@ GUI sadrži sledeće komponente:
 
     
 -   **File Manager** – omogućava pregled i manipulaciju fajlovima
+  
 ![File manager](START.png "File manager")
     
 -   **File editor** – omogućava izmjenu fajlova
+  
 ![File editor](FILEEDITOR.png "File editor")
