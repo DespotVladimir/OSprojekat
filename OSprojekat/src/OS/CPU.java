@@ -22,7 +22,7 @@ public class CPU {
     public static int clockCycle = 1;   // po 1s
     public int clock;
 
-    private final int quantumTime;
+    private int quantumTime;
 
     private int instruction;
 

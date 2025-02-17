@@ -109,7 +109,7 @@ public class Directory {
     }
 
     public void printAll(){
-        System.out.println("OS.Directory {" + name + "}: " );
+        System.out.println("Directory {" + name + "}: " );
         for(Directory directory : listDirectory){
             System.out.println("/"+directory.getName());
         }

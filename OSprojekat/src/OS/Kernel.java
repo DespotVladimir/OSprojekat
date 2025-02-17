@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 
 public class Kernel extends Thread {
     private final CPU cpu;
@@ -75,13 +74,11 @@ public class Kernel extends Thread {
                     pm.getProcessesToTerminate().clear();
 
                 }
+
                 executeNextCommand(currentProcess);
+
             }catch (Exception e){
 
-                System.out.println(e.getMessage());
-                e.printStackTrace();
-                System.out.println(Arrays.toString(currentProcess.getPages()));
-                System.exit(-1);
             }
         }
     }
@@ -128,7 +125,7 @@ public class Kernel extends Thread {
             p.setName(name);
         }
 
-        for(int i=0;i<3;i++)
+        for(int i=0;i<0;i++)
         {
             String ProcessPath="root/sys";
             Directory dir = fsm.navigateToDirectory(ProcessPath);
@@ -150,10 +147,13 @@ public class Kernel extends Thread {
         Page page;
         try{
             page = findPage(p,numOfPages);
+
             if(!page.isInMemory())
                 setInMemoryHDDPage(page,p);
-
-        }catch (Exception _){
+            page.updateLastUsedTime();
+        }catch (Exception e){
+           // System.out.println(e.getMessage());
+           // e.printStackTrace();
             return;
         }
         Byte[] temp = page.getMemoryBlock(block);
@@ -253,7 +253,12 @@ public class Kernel extends Thread {
         Page ret = process.getPage(page.getPageNumber());
         Page res = mm.getRam().loadPageIntoFrame(ret);
         if(res!=null)
+        {
             res.setInMemory(false);
+            String hddAddress = hm.findFirstEmptyVirtualMemory();
+            hm.writePage(res,hddAddress);
+            page_table.get(pm.getProcess(res.getProcessId())).add(hddAddress);
+        }
         ret.setInMemory(true);
         String address = hm.getHDD().encodeAddress(page.getPageNumber());
         hm.getHDD().writeToMemory(address,null);
@@ -371,12 +376,12 @@ public class Kernel extends Thread {
         boolean isAbsolute = FileSystemManager.isAbsolute(path);
         if(isAbsolute)
         {
-            System.out.println("\nMoving to: "+ path);
             Directory dir = fsm.navigateToDirectory(path);
             if(dir==null)
                 System.out.println("Directory not found. ");
             else
                 currentDirectory = dir;
+            System.out.println("\nMoving to: "+ path);
         }
         else{
             Directory dir = currentDirectory.getDirectory(path);
@@ -384,6 +389,7 @@ public class Kernel extends Thread {
                 System.out.println("Directory not found. ");
             else
                 currentDirectory = dir;
+            System.out.println("\nMoving to: "+ path);
         }
     }
 

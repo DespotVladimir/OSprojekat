@@ -92,7 +92,7 @@ public class Page {
     public void setDataFromString(String data) {
         Byte[] temp = new Byte[Page.pageSize];
         for (int i = 0; i < data.length();i++) {
-            temp[i] = Byte.parseByte(data);
+            temp[i] = Byte.parseByte(String.valueOf(data.charAt(i)));
         }
         setData(temp);
     }

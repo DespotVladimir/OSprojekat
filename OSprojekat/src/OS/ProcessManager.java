@@ -39,7 +39,7 @@ public class ProcessManager implements Scheduler{
             sortProcessList();
 
 
-            if(sameProcess>=100&&RoundRobinEnabled){
+            if(sameProcess>=10&&RoundRobinEnabled){
 
                 // ide RoundRobin ako je pocetni proces izabran vise puta
                 // traje do kraja reda
