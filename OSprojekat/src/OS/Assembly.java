@@ -131,7 +131,6 @@ public class Assembly {
     * SUB	Oduzmi podatke	0011
     * STA	Sačuvaj podatak u memoriju	0100
     * JMP	Skok na adresu	0101
-    * JZ	Skok ako je rezultat 0	0110
     * JNZ   Skok ako nije rezultat 0 0111
     * HLT	Zaustavi program	1111
     * 0000  Broj
