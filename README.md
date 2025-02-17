@@ -52,7 +52,6 @@ Sistem omogućava izvršavanje jednoadresnih asemblerskih instrukcija kao što s
 
 ##### *Primjer asemblerskog koda*
 ```
-```
   ADD 50; 	// Dodaje 50 u akumulator 
   ADD 25;	// Sabira 25 sa 50 koje je već u akumulatoru
   STA 60;	// Sprema vrijednost 75 na blok 60;
@@ -60,8 +59,6 @@ Sistem omogućava izvršavanje jednoadresnih asemblerskih instrukcija kao što s
   JNZ 3;	// Skače na komandu sa oduzimanjem 
 		// sve dok ne bude 0 u akumulatoru
   HLT;		// Zaustavlja program
-
-```
 ```
 ## Grafički korisnički interfejs (GUI)
 
