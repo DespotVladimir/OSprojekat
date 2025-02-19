@@ -51,18 +51,15 @@ Sistem omogućava izvršavanje jednoadresnih asemblerskih instrukcija kao što s
 
 
 ##### *Primjer asemblerskog koda*
-```json
-
+```
   ADD 50; 	// Dodaje 50 u akumulator 
   ADD 25;	// Sabira 25 sa 50 koje je već u akumulatoru
   STA 60;	// Sprema vrijednost 75 na blok 60;
   SUB 1;	// Oduzima 1
   JNZ 3;	// Skače na komandu sa oduzimanjem 
-			// sve dok ne bude 0 u akumulatoru
+		// sve dok ne bude 0 u akumulatoru
   HLT;		// Zaustavlja program
-
 ```
-
 ## Grafički korisnički interfejs (GUI)
 
 GUI sadrži sledeće komponente:
@@ -73,7 +70,9 @@ GUI sadrži sledeće komponente:
 
     
 -   **File Manager** – omogućava pregled i manipulaciju fajlovima
+  
 ![File manager](START.png "File manager")
     
 -   **File editor** – omogućava izmjenu fajlova
+  
 ![File editor](FILEEDITOR.png "File editor")
