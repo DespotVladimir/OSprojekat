@@ -29,7 +29,7 @@ public class Page {
         byte[] fileData = file.getContent().getBytes();
         for(int i = 0; i < 4096; i++){
             if(i<fileData.length)
-                this.data[i] = (byte)(fileData[i]>4?1:0);
+                this.data[i] = (byte)(fileData[i]>5?1:0);
             else
                 this.data[i] = 0;
         }

@@ -90,7 +90,7 @@ public class Terminal {
 
                     if(file==null)
                     {
-                        System.out.println("OS.File not found");
+                        System.out.println("File not found");
                         continue;
                     }
                     System.out.println("Write to "+file.getName()+" (type 'exit' to exit file)");
@@ -98,12 +98,15 @@ public class Terminal {
                     String opnCommand="";
                     StringBuilder sb = new StringBuilder();
                     int pageID = kernel.loadFileIntoRAM(file);
+                    int words=-1;
                     do {
+                        words++;
                         sb.append(opnCommand);
                         opnCommand = (scanner.nextLine()).replaceAll("\n","");
                     }while (!opnCommand.equalsIgnoreCase("exit"));
                     kernel.unloadFilePage(pageID);
-                    kernel.opn(file.getName(), sb.toString());
+                    if(words>0)
+                        kernel.opn(argument, sb.toString());
                 }
                 else if(user_command.equalsIgnoreCase("mkfile")){
                     kernel.mkfile(argument);
