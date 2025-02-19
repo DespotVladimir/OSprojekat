@@ -353,6 +353,19 @@ public class Kernel extends Thread {
         pm.RoundRobinEnabled=enabled;
     }
 
+    public int loadFileIntoRAM(File file){
+        int ids = pm.getFreeID();
+        Page page = new Page(file,ids);
+        mm.getRam().loadPageIntoFrame(page);
+        return ids;
+    }
+
+    public void unloadFilePage(int ID){
+        Frame f = mm.getRam().getFrameForPage(ID,0);
+        mm.getRam().freeFrame(f.getFrameId());
+
+    }
+
     // TERMINAL COMMANDS
     public void rd(String fileName)
     {
@@ -463,8 +476,10 @@ public class Kernel extends Thread {
         Process p = pm.getProcess(pid);
         if(p==null)
             System.out.println("Process not found. ");
-        else
+        else{
             p.block();
+            System.out.println("Process blocked.");
+        }
     }
 
     public void unblock(String PID)
@@ -473,8 +488,10 @@ public class Kernel extends Thread {
         Process p = pm.getProcess(pid);
         if(p==null)
             System.out.println("Process not found. ");
-        else
+        else{
             p.unblock();
+            System.out.println("Process unblocked.");
+        }
     }
 
     public void runs(String path){

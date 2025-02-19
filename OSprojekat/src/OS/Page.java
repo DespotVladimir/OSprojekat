@@ -20,6 +20,21 @@ public class Page {
             this.data[i] = 0;
     }
 
+    public Page(File file,int pageID){
+        this.pageNumber = 0;
+        this.processId = pageID;
+        this.inMemory = false;
+        this.lastUsedTime = System.currentTimeMillis();
+        this.data = new Byte[4096];
+        byte[] fileData = file.getContent().getBytes();
+        for(int i = 0; i < 4096; i++){
+            if(i<fileData.length)
+                this.data[i] = (byte)(fileData[i]>4?1:0);
+            else
+                this.data[i] = 0;
+        }
+    }
+
     public Page(int pageNumber, int processId, Byte[] data) {
         this.pageNumber = pageNumber;
         this.processId = processId;

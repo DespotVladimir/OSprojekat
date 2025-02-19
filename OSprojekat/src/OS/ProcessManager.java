@@ -32,7 +32,8 @@ public class ProcessManager implements Scheduler{
             head = Math.max(head-1, 0);
         }
 
-        processList.get(head).waiting();
+        if(processList.get(head).getState()!=ProcessState.BLOCKED)
+            processList.get(head).waiting();
 
         do {
 

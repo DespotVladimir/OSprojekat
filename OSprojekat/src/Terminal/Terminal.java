@@ -97,11 +97,12 @@ public class Terminal {
 
                     String opnCommand="";
                     StringBuilder sb = new StringBuilder();
+                    int pageID = kernel.loadFileIntoRAM(file);
                     do {
                         sb.append(opnCommand);
                         opnCommand = (scanner.nextLine()).replaceAll("\n","");
                     }while (!opnCommand.equalsIgnoreCase("exit"));
-
+                    kernel.unloadFilePage(pageID);
                     kernel.opn(file.getName(), sb.toString());
                 }
                 else if(user_command.equalsIgnoreCase("mkfile")){

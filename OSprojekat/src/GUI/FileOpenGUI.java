@@ -1,5 +1,6 @@
 package GUI;
 
+import OS.File;
 import OS.Kernel;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -26,6 +27,9 @@ public class FileOpenGUI {
         VBox root = new VBox(15);
         root.setPadding(new Insets(20));
 
+        File file = kernel.getFile(filePath);
+        int id = kernel.loadFileIntoRAM(file);
+
 
         root.setAlignment(Pos.CENTER);
         TextArea txtInput = new TextArea();
@@ -37,9 +41,13 @@ public class FileOpenGUI {
         btnSave.setMinWidth(150);
         btnSave.setOnAction(_ -> {
             kernel.updateFileContent(filePath, txtInput.getText());
+            kernel.unloadFilePage(id);
             stage.close();
         });
 
+        stage.setOnCloseRequest(_->{
+            kernel.unloadFilePage(id);
+        });
 
         root.getChildren().addAll(txtInput, btnSave);
         Scene scene = new Scene(root,500,400);
@@ -47,5 +55,7 @@ public class FileOpenGUI {
         stage.setTitle(fileName);
         stage.show();
     }
+
+
 
 }
