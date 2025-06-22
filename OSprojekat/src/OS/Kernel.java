@@ -3,7 +3,6 @@ package OS;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 public class Kernel extends Thread {
@@ -498,6 +497,8 @@ public class Kernel extends Thread {
 
         String fileContent = getFileContents(path);
         int nameIndex = path.lastIndexOf("/")+1;
+        //System.out.println(path);
+        //System.out.println(fileContent);
         Process p = createProcess(fileContent);
         if(nameIndex==0)
             p.setName(path);

@@ -1,7 +1,5 @@
 package Terminal;
 
-import GUI.mainGUI;
-import OS.Directory;
 import OS.File;
 import OS.Kernel;
 
@@ -51,7 +49,7 @@ public class Terminal {
         try {
             synchronized (kernelThread){kernelThread.wait(5);};
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            //throw new RuntimeException(e);
         }
 
         while(!user_command.equals("exit")){

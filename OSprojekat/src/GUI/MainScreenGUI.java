@@ -65,6 +65,7 @@ public class MainScreenGUI {
                 return;
             if(!selected.getName().contains(".file"))
                 return;
+            //System.out.println(selected);
             kernel.runs(selected.getCurrentDirectory());
         });
 
